@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 560" width="100%" height="100%">
+  <defs>
+    <!-- Soft Realistic Drop Shadow -->
+    <filter id="shieldShadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="-14" dy="16" stdDeviation="12" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+    
+    <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <g filter="url(#shieldShadow)">
+    <!-- Main Heraldic Shield Path (Vibrant Ruby Red) -->
+    <path d="M 256,14 C 345,42 454,70 454,142 L 454,295 C 454,410 355,492 256,542 C 157,492 58,410 58,295 L 58,142 C 58,70 167,42 256,14 Z" fill="#e10032" />
+    
+    <!-- Outer White Eye Almond Shape -->
+    <path d="M 112,220 C 158,122 354,122 400,220 C 354,318 158,318 112,220 Z" fill="#ffffff" />
+
+    <!-- Solid Red Iris Circle -->
+    <circle cx="256" cy="220" r="76" fill="#e10032" />
+
+    <!-- Inner White Pupil Base -->
+    <circle cx="256" cy="220" r="36" fill="#ffffff" />
+
+    <!-- Right Notch Cutout on Pupil -->
+    <path d="M 256,220 L 292,220 A 36,36 0 0 1 278,245 A 14,14 0 0 0 274,222 Z" fill="#e10032" />
+
+    <!-- Center Devanagari 'स' Symbol -->
+    <text x="251" y="233" font-family="'Plus Jakarta Sans', 'Mukta', 'Noto Sans Devanagari', 'Arial', sans-serif" font-weight="900" font-size="40" fill="#e10032" text-anchor="middle">स</text>
+
+    <!-- Bottom Typography: "सत्यता Lens" -->
+    <g filter="url(#textShadow)">
+      <!-- Devanagari 'सत्यता' -->
+      <text x="274" y="420" font-family="'Plus Jakarta Sans', 'Mukta', 'Devanagari', 'Segoe UI', sans-serif" font-weight="900" font-size="52" fill="#ffffff" text-anchor="end">सत्यता</text>
+      <!-- English 'Lens' -->
+      <text x="282" y="420" font-family="'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif" font-weight="800" font-size="52" fill="#ffffff" text-anchor="start">Lens</text>
+    </g>
+  </g>
+</svg>
