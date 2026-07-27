@@ -209,8 +209,10 @@ app.get('/api/admin/export-database', requireAdmin, (req, res) => {
 
 app.get('/api/admin/download-database-csv', requireAdmin, (req, res) => {
   try {
-    const { csvFilePath } = driveExporter.exportUserDatabaseCsv();
-    return res.download(csvFilePath, 'SatyaLens_User_Database_Export.csv');
+    const { csvContent } = driveExporter.exportUserDatabaseCsv();
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="SatyaLens_User_Database_Export.csv"');
+    return res.send(csvContent || 'ID,Name,Email,Role,Is_Verified,Created_At,Last_Login\n');
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

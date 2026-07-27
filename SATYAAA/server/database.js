@@ -19,9 +19,10 @@ function loadDb() {
 
 function saveDb(dbData) {
   try {
+    if (process.env.VERCEL) return;
     fs.writeFileSync(DB_PATH, JSON.stringify(dbData, null, 2), 'utf8');
   } catch (err) {
-    console.error('Error saving database file:', err.message);
+    console.warn('Notice: Local database file save skipped on read-only environment:', err.message);
   }
 }
 

@@ -1,15 +1,13 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "SATYAAA/server/index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
     {
-      "src": "/(.*)",
-      "dest": "SATYAAA/server/index.js"
+      "source": "/(.*)",
+      "destination": "/SATYAAA/public/$1"
     }
   ]
 }

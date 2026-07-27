@@ -11,8 +11,12 @@ const FAKEV2_TRAINING_DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders
 const FAKEV2_TRAINING_DRIVE_FOLDER_ID = '1VcKS96CjfwvVnfQakiZTTwk49fnkz3u_';
 
 function ensureExportDir() {
-  if (!fs.existsSync(EXPORT_DIR)) {
-    fs.mkdirSync(EXPORT_DIR, { recursive: true });
+  try {
+    if (!process.env.VERCEL && !fs.existsSync(EXPORT_DIR)) {
+      fs.mkdirSync(EXPORT_DIR, { recursive: true });
+    }
+  } catch (e) {
+    console.warn('Notice: Export directory creation skipped on read-only environment.');
   }
 }
 
@@ -48,8 +52,13 @@ function exportUserDatabaseJson() {
   };
 
   const jsonFilePath = path.join(EXPORT_DIR, 'SatyaLens_User_Database_Export.json');
-  fs.writeFileSync(jsonFilePath, JSON.stringify(exportPayload, null, 2), 'utf8');
-  console.log(`Database exported to JSON: ${jsonFilePath}`);
+  try {
+    if (!process.env.VERCEL) {
+      fs.writeFileSync(jsonFilePath, JSON.stringify(exportPayload, null, 2), 'utf8');
+    }
+  } catch (err) {
+    console.warn('Notice: JSON export file write skipped on read-only environment.');
+  }
 
   return { exportPayload, jsonFilePath };
 }
@@ -71,21 +80,20 @@ function exportUserDatabaseCsv() {
 
   const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   const csvFilePath = path.join(EXPORT_DIR, 'SatyaLens_User_Database_Export.csv');
-  fs.writeFileSync(csvFilePath, csvContent, 'utf8');
-  console.log(`Database exported to CSV: ${csvFilePath}`);
+  try {
+    if (!process.env.VERCEL) {
+      fs.writeFileSync(csvFilePath, csvContent, 'utf8');
+    }
+  } catch (err) {
+    console.warn('Notice: CSV export file write skipped on read-only environment.');
+  }
 
   return { csvFilePath, csvContent };
 }
-
-// Run exports on execution
-const jsonRes = exportUserDatabaseJson();
-const csvRes = exportUserDatabaseCsv();
 
 module.exports = {
   GOOGLE_DRIVE_FOLDER_URL,
   GOOGLE_DRIVE_FOLDER_ID,
   exportUserDatabaseJson,
-  exportUserDatabaseCsv,
-  jsonFilePath: jsonRes.jsonFilePath,
-  csvFilePath: csvRes.csvFilePath
+  exportUserDatabaseCsv
 };
