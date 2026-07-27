@@ -161,7 +161,44 @@ function detectCategory(url) {
   return 'video_or_audio';
 }
 
-async function getGoogleGeneration(prompt) {
+async function fetchImageBufferFromUrl(url) {
+  try {
+    if (!url || typeof url !== 'string' || !url.startsWith('http')) return null;
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer',
+      timeout: 7000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+      }
+    });
+
+    const contentType = String(response.headers['content-type'] || '').toLowerCase();
+    const lowerUrl = url.toLowerCase();
+
+    if (!contentType.includes('image') && !lowerUrl.match(/\.(jpg|jpeg|png|webp|gif|bmp)(\?.*)?$/)) {
+      return null;
+    }
+
+    let mimeType = contentType.split(';')[0].trim() || 'image/jpeg';
+    if (!mimeType.includes('image/')) {
+      if (lowerUrl.includes('.png')) mimeType = 'image/png';
+      else if (lowerUrl.includes('.webp')) mimeType = 'image/webp';
+      else if (lowerUrl.includes('.gif')) mimeType = 'image/gif';
+      else mimeType = 'image/jpeg';
+    }
+
+    const base64Data = Buffer.from(response.data).toString('base64');
+    if (base64Data.length < 100) return null;
+
+    return { mimeType, base64Data };
+  } catch (e) {
+    console.warn('Image link fetch notice:', e.message);
+    return null;
+  }
+}
+
+async function getGoogleGeneration(prompt, imageObj = null) {
   const models = [
     'gemini-3.6-flash',
     'gemini-flash-latest',
@@ -178,13 +215,19 @@ async function getGoogleGeneration(prompt) {
       'x-goog-api-key': geminiApiKey
     };
 
+    const parts = [{ text: prompt }];
+    if (imageObj && imageObj.base64Data) {
+      parts.push({
+        inlineData: {
+          mimeType: imageObj.mimeType || 'image/jpeg',
+          data: imageObj.base64Data
+        }
+      });
+    }
+
     try {
       const response = await axios.post(endpoint, {
-        contents: [
-          {
-            parts: [{ text: prompt }]
-          }
-        ],
+        contents: [{ parts }],
         generationConfig: { responseMimeType: 'application/json' }
       }, { headers, timeout: 25000 });
 
@@ -194,7 +237,7 @@ async function getGoogleGeneration(prompt) {
       // Fallback without generationConfig
       try {
         const response = await axios.post(endpoint, {
-          contents: [{ parts: [{ text: prompt }] }]
+          contents: [{ parts }]
         }, { headers, timeout: 25000 });
         const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No AI response.';
         return String(text).trim();
@@ -411,6 +454,12 @@ async function analyzeLink(url, category, options = {}) {
   // Fetch target media metadata (YouTube oEmbed title, channel, hashtags)
   const metadata = await fetchMediaMetadata(url);
 
+  // If category is image, fetch image buffer for multimodal vision inspection
+  let imageObj = null;
+  if (category === 'image') {
+    imageObj = await fetchImageBufferFromUrl(url);
+  }
+
   const prompt = `You are a Lead AI Forensic Auditor operating the SatyaLens "AI-Checking-AI" Multi-Modal Neural Inspection Engine.
 Your mission is to perform AN ADVERSARIAL AI AUDIT CHECKING IF ANOTHER GENERATIVE AI ENGINE (Midjourney v5/v6, DALL-E 3, Stable Diffusion XL/3, Sora, Runway Gen-2, Pika, ElevenLabs, Suno v3, Udio, CGI/AI Animation, etc.) synthesized or manipulated this target media.
 
@@ -459,8 +508,8 @@ Return ONLY a valid JSON object matching this exact schema:
       { "date": "2026-07-24", "source": "Current Submission", "event": "SatyaLens Digital Forensic Audit Date" }
     ]
   },
-  "speechTranscript": "Full transcribed speech or spoken text from the audio/video asset.",
-  "transcriptFactCheck": "Web search and fact-check results verifying whether the transcribed statements are true, false, or manipulated.",
+  "speechTranscript": "${category === 'image' ? '' : 'Full transcribed speech or spoken text from the audio/video asset.'}",
+  "transcriptFactCheck": "${category === 'image' ? 'Image link visual forensic scan completed.' : 'Web search and fact-check results verifying whether the transcribed statements are true, false, or manipulated.'}",
   "visualAudioForensics": "Detailed breakdown of Anatomical Consistency, Physics & Lighting, Semantic Background, and Temporal Sync.",
   "metadataProvenance": "C2PA digital credentials, EXIF headers, or platform watermark signals.",
   "explanation": "4-Phase Step-by-Step Chain-of-Thought forensic report covering Grid Scan, Tri-Level Check, Differential Diagnosis, and Final Rationale."
@@ -471,10 +520,17 @@ Return ONLY a valid JSON object matching this exact schema:
   }
 
   try {
-    const text = await getGoogleGeneration(prompt);
-    const parsed = extractJsonFromText(text);
+    const text = await getGoogleGeneration(prompt, imageObj);
+    const parsed = extractJsonFromText(text) || {};
 
     const verdict = determineVerdictFromText(text, parsed, url, metadata);
+
+    parsed.category = category;
+    parsed.is_image = (category === 'image');
+    parsed.imageUrl = url;
+    if (category === 'image') {
+      parsed.speechTranscript = null;
+    }
 
     let formattedText = text;
     if (parsed) {
@@ -571,6 +627,9 @@ function getFallbackForensicReport(url, category) {
 
   const json = {
     verdict: verdict === 'AI' ? 'AI_GENERATED' : verdict,
+    category: category,
+    is_image: (category === 'image'),
+    imageUrl: url,
     is_ai: verdict === 'AI',
     is_real: verdict === 'REAL',
     is_fake: verdict === 'FAKE',

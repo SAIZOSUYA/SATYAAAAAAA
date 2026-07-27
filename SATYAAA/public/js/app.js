@@ -142,6 +142,38 @@ function formatReportText(text, json) {
   if (json) {
     let html = '';
 
+    const isImageMode = Boolean(
+      json.is_image || 
+      json.category === 'image' || 
+      (json.imageUrl && String(json.imageUrl).match(/\.(jpg|jpeg|png|webp|gif|bmp)(\?.*)?$/i)) ||
+      (json.publisherSource && String(json.publisherSource).match(/\.(jpg|jpeg|png|webp|gif|bmp)(\?.*)?$/i))
+    );
+
+    const targetImgUrl = json.imageUrl || (json.publisherSource && json.publisherSource.startsWith('http') ? json.publisherSource : null);
+
+    if (isImageMode && targetImgUrl) {
+      let domainHost = 'Image Web Host';
+      try { domainHost = new URL(targetImgUrl).hostname; } catch (e) {}
+
+      html += `
+        <div class="report-section-card image-preview-card">
+          <div class="section-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Target Image Link Verification Preview</span>
+          </div>
+          <div class="section-card-body image-preview-body">
+            <div class="image-preview-thumbnail-container">
+              <img src="${escapeHtml(targetImgUrl)}" alt="Target Image Verification Preview" class="report-image-preview-img" onerror="this.parentElement.style.display='none';" />
+            </div>
+            <div class="image-meta-details">
+              <p style="margin-bottom:6px;"><strong>Target Image Link:</strong> <a href="${escapeHtml(targetImgUrl)}" target="_blank" rel="noopener" class="link-val" style="word-break:break-all;">${escapeHtml(targetImgUrl)}</a></p>
+              <p style="margin-bottom:6px;"><strong>Detected Host Domain:</strong> <span class="badge-category">${escapeHtml(domainHost)}</span></p>
+              <p style="margin:0;"><strong>fakeV2 Benchmark Status:</strong> ${json.is_ai ? '<span style="color:#f43f5e; font-weight:700;">Synthetic AI Generation Signals Detected</span>' : '<span style="color:#10b981; font-weight:700;">Authentic Optical Capture</span>'}</p>
+            </div>
+          </div>
+        </div>`;
+    }
+
     const primEvid = json.primary_evidence || json.damningEvidence;
     if (primEvid) {
       html += `
@@ -201,20 +233,22 @@ function formatReportText(text, json) {
     }
 
     const manipLine = json.manipulative_line || json.manipulativeLine || json.flagged_speech_segment;
-    if (json.speechTranscript || json.transcriptFactCheck || manipLine) {
+    const hasSpeechText = Boolean(json.speechTranscript && json.speechTranscript.trim() && !json.speechTranscript.includes('No spoken audio present'));
+    
+    if (hasSpeechText || json.transcriptFactCheck || manipLine) {
       html += `
         <div class="report-section-card" style="${manipLine ? 'border-left: 4px solid #f43f5e;' : ''}">
           <div class="section-card-title">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-            <span>1. Speech Transcription & Manipulative Line Remark</span>
+            <span>${isImageMode ? '1. Visual Image Inspection & Fact-Check Verification' : '1. Speech Transcription & Manipulative Line Remark'}</span>
           </div>
           <div class="section-card-body">
-            ${json.speechTranscript ? `<p style="margin-bottom:8px;"><strong>Transcribed Remarks:</strong> "${escapeHtml(json.speechTranscript)}"</p>` : ''}
+            ${hasSpeechText ? `<p style="margin-bottom:8px;"><strong>Transcribed Remarks:</strong> "${escapeHtml(json.speechTranscript)}"</p>` : ''}
             ${manipLine ? `
               <div class="manipulative-line-box">
                 <strong style="color: #f43f5e; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  FLAGGED MANIPULATIVE LINE / VOCAL REMARK:
+                  FLAGGED MANIPULATIVE LINE / REMARK:
                 </strong>
                 <div class="red-manipulative-highlight" style="margin-top: 6px;">"${escapeHtml(manipLine)}"</div>
               </div>` : ''}
