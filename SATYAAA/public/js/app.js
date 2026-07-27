@@ -1635,21 +1635,25 @@ function generateAndDownloadWordEvidence(result) {
 
 // --- Light / Dark Mode Theme Switcher ---
 const themeToggleBtn = document.getElementById('themeToggleBtn');
+const authThemeToggleBtn = document.getElementById('authThemeToggleBtn');
 const themeToggleText = document.getElementById('themeToggleText');
-const sunIcon = document.querySelector('.sun-icon');
-const moonIcon = document.querySelector('.moon-icon');
+const authThemeToggleText = document.getElementById('authThemeToggleText');
+const sunIcons = document.querySelectorAll('.sun-icon');
+const moonIcons = document.querySelectorAll('.moon-icon');
 
 function applyTheme(isLight) {
   if (isLight) {
     document.body.classList.add('light-mode');
     if (themeToggleText) themeToggleText.textContent = 'Dark Mode';
-    if (sunIcon) sunIcon.classList.add('hide');
-    if (moonIcon) moonIcon.classList.remove('hide');
+    if (authThemeToggleText) authThemeToggleText.textContent = 'Dark Mode';
+    sunIcons.forEach(i => i.classList.add('hide'));
+    moonIcons.forEach(i => i.classList.remove('hide'));
   } else {
     document.body.classList.remove('light-mode');
     if (themeToggleText) themeToggleText.textContent = 'Light Mode';
-    if (sunIcon) sunIcon.classList.remove('hide');
-    if (moonIcon) moonIcon.classList.add('hide');
+    if (authThemeToggleText) authThemeToggleText.textContent = 'Light Mode';
+    sunIcons.forEach(i => i.classList.remove('hide'));
+    moonIcons.forEach(i => i.classList.add('hide'));
   }
 }
 
@@ -1658,44 +1662,51 @@ if (savedTheme === 'light') {
   applyTheme(true);
 }
 
-if (themeToggleBtn) {
-  themeToggleBtn.addEventListener('click', () => {
-    const isLightNow = document.body.classList.contains('light-mode');
-    const nextIsLight = !isLightNow;
-    applyTheme(nextIsLight);
-    localStorage.setItem('satya_theme', nextIsLight ? 'light' : 'dark');
-  });
+function toggleThemeAction() {
+  const isLightNow = document.body.classList.contains('light-mode');
+  const nextIsLight = !isLightNow;
+  applyTheme(nextIsLight);
+  localStorage.setItem('satya_theme', nextIsLight ? 'light' : 'dark');
 }
+
+if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleThemeAction);
+if (authThemeToggleBtn) authThemeToggleBtn.addEventListener('click', toggleThemeAction);
 
 // Fullscreen Toggle Handler
 const fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
+const authFullscreenToggleBtn = document.getElementById('authFullscreenToggleBtn');
 const fullscreenToggleText = document.getElementById('fullscreenToggleText');
+const authFullscreenToggleText = document.getElementById('authFullscreenToggleText');
 
-if (fullscreenToggleBtn) {
-  fullscreenToggleBtn.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => {
-        if (fullscreenToggleText) fullscreenToggleText.textContent = 'Exit Full Screen';
-      }).catch(err => {
-        console.error(`Fullscreen error: ${err.message}`);
+function toggleFullscreenAction() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().then(() => {
+      updateFullscreenText('Exit Full Screen');
+    }).catch(err => {
+      console.error(`Fullscreen error: ${err.message}`);
+    });
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().then(() => {
+        updateFullscreenText('Full Screen');
       });
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().then(() => {
-          if (fullscreenToggleText) fullscreenToggleText.textContent = 'Full Screen';
-        });
-      }
     }
-  });
-
-  document.addEventListener('fullscreenchange', () => {
-    if (fullscreenToggleText) {
-      if (document.fullscreenElement) {
-        fullscreenToggleText.textContent = 'Exit Full Screen';
-      } else {
-        fullscreenToggleText.textContent = 'Full Screen';
-      }
-    }
-  });
+  }
 }
+
+function updateFullscreenText(text) {
+  if (fullscreenToggleText) fullscreenToggleText.textContent = text;
+  if (authFullscreenToggleText) authFullscreenToggleText.textContent = text;
+}
+
+if (fullscreenToggleBtn) fullscreenToggleBtn.addEventListener('click', toggleFullscreenAction);
+if (authFullscreenToggleBtn) authFullscreenToggleBtn.addEventListener('click', toggleFullscreenAction);
+
+document.addEventListener('fullscreenchange', () => {
+  if (document.fullscreenElement) {
+    updateFullscreenText('Exit Full Screen');
+  } else {
+    updateFullscreenText('Full Screen');
+  }
+});
 
