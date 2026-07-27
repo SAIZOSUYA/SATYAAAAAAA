@@ -966,19 +966,31 @@ if (mainDownloadPdfBtn) {
 if (sampleYoutubeBtn) {
   sampleYoutubeBtn.addEventListener('click', () => {
     mediaUrl.value = 'https://youtu.be/bgnZNjd9yv8';
-    checkBtn.focus();
+    if (checkBtn) {
+      checkBtn.disabled = false;
+      checkBtn.focus();
+      checkBtn.click();
+    }
   });
 }
 if (sampleImageBtn) {
   sampleImageBtn.addEventListener('click', () => {
     mediaUrl.value = 'https://images.unsplash.com/photo-1541963463532-d68292c34b19.jpg';
-    checkBtn.focus();
+    if (checkBtn) {
+      checkBtn.disabled = false;
+      checkBtn.focus();
+      checkBtn.click();
+    }
   });
 }
 if (sampleSoraBtn) {
   sampleSoraBtn.addEventListener('click', () => {
     mediaUrl.value = 'https://sora.com/gallery/ai-generated-sample-video';
-    checkBtn.focus();
+    if (checkBtn) {
+      checkBtn.disabled = false;
+      checkBtn.focus();
+      checkBtn.click();
+    }
   });
 }
 
@@ -1018,24 +1030,20 @@ function stopTelemetryAnimation() {
   if (telemetryStatusText) telemetryStatusText.textContent = '✅ Audit Complete - Rendering Verification Analysis...';
   setTimeout(() => {
     if (scanTelemetryBox) scanTelemetryBox.classList.add('hide');
-  }, 400);
+  }, 300);
 }
 
-function updateConfidenceGauge(confNum, verdict) {
+function updateConfidenceGauge(confScore, verdict) {
   if (!gaugeBarInner) return;
-  const conf = Math.max(10, Math.min(100, confNum || 96));
+  const conf = Math.max(0, Math.min(100, parseInt(confScore, 10) || 96));
   gaugeBarInner.style.width = '0%';
-  
   const vUpper = String(verdict || '').toUpperCase();
-  if (vUpper === 'AI' || vUpper === 'AI_GENERATED') {
-    gaugeBarInner.style.background = 'linear-gradient(90deg, #f43f5e 0%, #be123c 100%)';
-    gaugeBarInner.style.boxShadow = '0 0 10px rgba(244, 63, 94, 0.7)';
-  } else if (vUpper === 'REAL' || vUpper === 'AUTHENTIC') {
-    gaugeBarInner.style.background = 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
-    gaugeBarInner.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.7)';
-  } else {
+  if (vUpper === 'AI' || vUpper === 'AI_GENERATED' || vUpper === 'FAKE' || vUpper.includes('AI')) {
+    gaugeBarInner.style.background = 'linear-gradient(90deg, #f43f5e 0%, #e11d48 100%)';
+  } else if (vUpper === 'MANIPULATIVE' || vUpper === 'SUSPICIOUS') {
     gaugeBarInner.style.background = 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)';
-    gaugeBarInner.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.7)';
+  } else {
+    gaugeBarInner.style.background = 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
   }
 
   setTimeout(() => {
@@ -1057,9 +1065,11 @@ checkBtn.addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
     });
+    if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
     data = await resp.json();
+    if (!data || !data.aiResult) throw new Error('Invalid API payload structure');
   } catch (error) {
-    console.warn('Network call failed, switching to SatyaLens Client Forensic Engine:', error);
+    console.warn('API call failed or invalid payload, switching to SatyaLens Client Forensic Engine:', error);
     data = generateClientFallbackResult(url);
   } finally {
     stopTelemetryAnimation();
@@ -1098,6 +1108,15 @@ checkBtn.addEventListener('click', async () => {
     checkAndPromptCyberBureau(verdict, json, rawText, url);
   } catch (err) {
     console.error('Render error:', err);
+    // Ultimate fallback render
+    const fb = generateClientFallbackResult(url);
+    const fbResult = fb.aiResult;
+    resultCard.classList.remove('hide');
+    resultUrl.href = url;
+    resultUrl.textContent = url;
+    updateBadgeStyle(resultAi, fbResult.verdict, fbResult.verdict);
+    resultReport.innerHTML = formatReportText(fbResult.raw, fbResult.json);
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   } finally {
     setLoading(false);
   }

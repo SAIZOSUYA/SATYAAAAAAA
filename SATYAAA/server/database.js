@@ -75,7 +75,7 @@ function findUserByEmail(email) {
   return db.users.find(u => u.email.toLowerCase() === cleanEmail) || null;
 }
 
-function createUser({ name, email, password, role = 'user', is_verified = 0 }) {
+function createUser({ name, email, password, role = 'user', is_verified = 1 }) {
   const db = loadDb();
   const cleanEmail = String(email).trim().toLowerCase();
 
@@ -89,7 +89,7 @@ function createUser({ name, email, password, role = 'user', is_verified = 0 }) {
     email: cleanEmail,
     passwordHash: bcrypt.hashSync(String(password), 10),
     role: role === 'admin' ? 'admin' : 'user',
-    is_verified: is_verified ? 1 : 0,
+    is_verified: is_verified !== undefined && is_verified !== null ? (is_verified ? 1 : 0) : 1,
     created_at: new Date().toISOString(),
     last_login: new Date().toISOString()
   };
