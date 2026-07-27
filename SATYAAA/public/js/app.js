@@ -31,6 +31,17 @@ function showAuthPanel() {
 let currentUserState = null;
 
 async function checkSession() {
+  const isSessionActive = sessionStorage.getItem('satya_session_active');
+  if (!isSessionActive) {
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+    } catch (err) {}
+    currentUserState = null;
+    updateUserUI(null);
+    showAuthPanel();
+    return;
+  }
+
   try {
     const res = await fetch('/api/user');
     if (res.ok) {
@@ -46,9 +57,24 @@ async function checkSession() {
     console.warn('Session check notice:', err.message);
   }
   currentUserState = null;
+  sessionStorage.removeItem('satya_session_active');
   updateUserUI(null);
   showAuthPanel();
 }
+
+function handlePageExitLogout() {
+  sessionStorage.removeItem('satya_session_active');
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/logout');
+    } else {
+      fetch('/api/logout', { method: 'POST', keepalive: true });
+    }
+  } catch (e) {}
+}
+
+window.addEventListener('pagehide', handlePageExitLogout);
+window.addEventListener('beforeunload', handlePageExitLogout);
 
 function updateUserUI(user) {
   const userProfileBadge = document.getElementById('userProfileBadge');
@@ -199,6 +225,7 @@ if (standaloneAuthForm) {
       }
 
       currentUserState = data.user;
+      sessionStorage.setItem('satya_session_active', '1');
       updateUserUI(data.user);
       showAppPanel();
 
@@ -326,6 +353,7 @@ if (authForm) {
 
       closeAuthModal();
       currentUserState = data.user;
+      sessionStorage.setItem('satya_session_active', '1');
       updateUserUI(data.user);
       showAppPanel();
 
@@ -344,6 +372,7 @@ if (authForm) {
 
 if (logoutBtn) {
   logoutBtn.addEventListener('click', async () => {
+    sessionStorage.removeItem('satya_session_active');
     try {
       await fetch('/api/logout', { method: 'POST' });
     } catch (e) {}
