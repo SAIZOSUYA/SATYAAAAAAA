@@ -567,27 +567,59 @@ function setLoading(loading) {
 }
 
 function updateBadgeStyle(element, text, statusType) {
+  if (!element) return;
   element.className = 'row-val status-badge';
   const type = String(statusType || text || '').toUpperCase();
+  const statusIndicator = document.getElementById('statusIndicator');
   
   if (type === 'AI' || type === 'AI_GENERATED' || type.includes('SYNTHETIC') || type.includes('DEEPFAKE')) {
     element.innerHTML = '<span class="pulse-dot" style="background:#f43f5e; box-shadow:0 0 8px #f43f5e;"></span><span>AI</span>';
     element.classList.add('badge-ai-generated');
+    if (statusIndicator) {
+      statusIndicator.className = 'status-indicator bg-ai';
+      statusIndicator.style.display = 'flex';
+      statusIndicator.innerHTML = '<span class="pulse-dot" style="background:#f43f5e; box-shadow:0 0 8px #f43f5e; width:10px; height:10px; border-radius:50%; display:inline-block;"></span><strong style="color:#fda4af; font-size:0.9rem;">AI GENERATED SYNTHETIC MEDIA DETECTED</strong>';
+    }
   } else if (type === 'REAL' || type === 'AUTHENTIC' || type.includes('GENUINE')) {
-    element.innerHTML = '<span class="pulse-dot" style="background:#10b981; box-shadow:0 0 8px #10b981;"></span><span>Real</span>';
+    element.innerHTML = '<span class="pulse-dot" style="background:#10b981; box-shadow:0 0 8px #10b981;"></span><span>REAL</span>';
     element.classList.add('badge-authentic');
+    if (statusIndicator) {
+      statusIndicator.className = 'status-indicator bg-real';
+      statusIndicator.style.display = 'flex';
+      statusIndicator.innerHTML = '<span class="pulse-dot" style="background:#10b981; box-shadow:0 0 8px #10b981; width:10px; height:10px; border-radius:50%; display:inline-block;"></span><strong style="color:#34d399; font-size:0.9rem;">REAL AUTHENTIC MEDIA CONFIRMED</strong>';
+    }
   } else if (type === 'FAKE' || type === 'FABRICATED') {
-    element.innerHTML = '<span class="pulse-dot" style="background:#e11d48; box-shadow:0 0 8px #e11d48;"></span><span>Fake</span>';
+    element.innerHTML = '<span class="pulse-dot" style="background:#e11d48; box-shadow:0 0 8px #e11d48;"></span><span>FAKE</span>';
     element.classList.add('badge-fake');
+    if (statusIndicator) {
+      statusIndicator.className = 'status-indicator bg-fake';
+      statusIndicator.style.display = 'flex';
+      statusIndicator.innerHTML = '<span class="pulse-dot" style="background:#e11d48; box-shadow:0 0 8px #e11d48; width:10px; height:10px; border-radius:50%; display:inline-block;"></span><strong style="color:#f43f5e; font-size:0.9rem;">FAKE / FABRICATED CLAIM DETECTED</strong>';
+    }
   } else if (type === 'MANIPULATIVE' || type === 'SUSPICIOUS' || type.includes('DOCTORED')) {
-    element.innerHTML = '<span class="pulse-dot" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span><span>Manipulative / Suspicious</span>';
+    element.innerHTML = '<span class="pulse-dot" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span><span>MANIPULATIVE</span>';
     element.classList.add('badge-manipulative');
+    if (statusIndicator) {
+      statusIndicator.className = 'status-indicator bg-manipulative';
+      statusIndicator.style.display = 'flex';
+      statusIndicator.innerHTML = '<span class="pulse-dot" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b; width:10px; height:10px; border-radius:50%; display:inline-block;"></span><strong style="color:#fbbf24; font-size:0.9rem;">MANIPULATIVE / DOCTORED CONTENT DETECTED</strong>';
+    }
   } else if (type === 'INCONCLUSIVE') {
-    element.innerHTML = '<span class="pulse-dot" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span><span>Inconclusive</span>';
+    element.innerHTML = '<span class="pulse-dot" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span><span>INCONCLUSIVE</span>';
     element.classList.add('badge-fallback');
+    if (statusIndicator) {
+      statusIndicator.className = 'status-indicator bg-manipulative';
+      statusIndicator.style.display = 'flex';
+      statusIndicator.innerHTML = '<span class="pulse-dot" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b; width:10px; height:10px; border-radius:50%; display:inline-block;"></span><strong style="color:#fbbf24; font-size:0.9rem;">INCONCLUSIVE MEDIA QUALITY</strong>';
+    }
   } else {
-    element.innerHTML = `<span class="pulse-dot" style="background:#10b981; box-shadow:0 0 8px #10b981;"></span><span>${escapeHtml(text || 'Real')}</span>`;
+    element.innerHTML = '<span class="pulse-dot" style="background:#10b981; box-shadow:0 0 8px #10b981;"></span><span>REAL</span>';
     element.classList.add('badge-authentic');
+    if (statusIndicator) {
+      statusIndicator.className = 'status-indicator bg-real';
+      statusIndicator.style.display = 'flex';
+      statusIndicator.innerHTML = '<span class="pulse-dot" style="background:#10b981; box-shadow:0 0 8px #10b981; width:10px; height:10px; border-radius:50%; display:inline-block;"></span><strong style="color:#34d399; font-size:0.9rem;">REAL AUTHENTIC MEDIA CONFIRMED</strong>';
+    }
   }
 }
 
