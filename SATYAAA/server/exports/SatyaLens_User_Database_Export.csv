@@ -1,4 +1,4 @@
 ID,Name,Email,Role,Is_Verified,Created_At,Last_Login
 usr_admin_01,"SatyaLens Admin","admin@satyalens.gov.np",admin,1,2026-07-27T03:07:06.121Z,2026-07-27T11:28:50.625Z
-usr_sample_01,"Satya Verified User","satya@example.com",user,1,2026-07-27T03:07:06.176Z,2026-07-27T04:59:35.794Z
+usr_sample_01,"Satya Verified User","satya@example.com",user,1,2026-07-27T03:07:06.176Z,2026-07-27T11:32:22.226Z
 usr_1785123051621_jqvl2,"SAIZO","saizosuya12@gmail.com",user,1,2026-07-27T03:30:51.709Z,2026-07-27T03:31:55.792Z
