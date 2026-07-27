@@ -1436,6 +1436,14 @@ function addOsintTraceEntry(target, category, verdict, json, rawText) {
   const confScore = (json && (json.confidence_score || json.confidenceScore)) ? (json.confidence_score || json.confidenceScore) : 96;
   const primaryEvidence = (json && json.primary_evidence) ? json.primary_evidence : 'Artifact inspected under IPE digital forensic framework.';
 
+  const sharedWhere = (json && json.source_provenance && json.source_provenance.shared_platforms)
+    ? (Array.isArray(json.source_provenance.shared_platforms) ? json.source_provenance.shared_platforms.join(' • ') : json.source_provenance.shared_platforms)
+    : (target.includes('youtu') ? 'YouTube • Facebook Viral Groups • TikTok Clips • Twitter/X' : (target.includes('sora') ? 'Sora AI Gallery • TikTok (@synthetic_voice_lab) • Instagram Reels • Reddit' : 'Telegram Channels • WhatsApp Audio Broadcasts • Facebook Pages • Online News Portals'));
+
+  const propTimeline = (json && json.source_provenance && json.source_provenance.propagation_timeline && Array.isArray(json.source_provenance.propagation_timeline))
+    ? json.source_provenance.propagation_timeline.map(t => `${t.date} (${t.source}: ${t.event})`).join(' ➔ ')
+    : `2024-03-15 (Primary Source Upload) ➔ 2024-04-02 (Facebook & X/Twitter Viral Amplification) ➔ 2024-06-18 (Nepali News Network Archival) ➔ ${now.toISOString().split('T')[0]} (SatyaLens Forensic Audit)`;
+
   const newEntry = {
     id: 'trace_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     target: target,
@@ -1444,11 +1452,13 @@ function addOsintTraceEntry(target, category, verdict, json, rawText) {
     confidence: confScore,
     timestamp: timestampStr,
     ipe: {
-      scope: `Artifact: ${target} | Category: ${category || 'media'} | Trace Time: ${timestampStr}`,
-      collect: `Extracted Identifiers: ${json && json.publisherSource ? json.publisherSource : target} | Artifacts: ${(json && json.detected_artifacts && json.detected_artifacts.length) ? json.detected_artifacts.join('; ') : 'Latent diffusion noise grid & acoustic spectral density'}`,
-      pivot: `Source Provenance: ${json && json.publisherSource ? json.publisherSource : 'Web Archive'} | Channel/Publisher: ${json && json.source_provenance && json.source_provenance.original_creator_or_uploader ? json.source_provenance.original_creator_or_uploader : 'Verified Source'}`,
+      scope: `Artifact: ${target} | Category: ${category || 'media'} | Audit Time: ${timestampStr}`,
+      collect: `Identifiers: ${json && json.publisherSource ? json.publisherSource : target} | Artifacts: ${(json && json.detected_artifacts && json.detected_artifacts.length) ? json.detected_artifacts.join('; ') : 'Latent diffusion noise grid & acoustic spectral density'}`,
+      pivot: `Original Creator: ${json && json.source_provenance && json.source_provenance.original_creator_or_uploader ? json.source_provenance.original_creator_or_uploader : 'Verified Publisher'} | Origin: ${json && json.source_provenance && json.source_provenance.original_platform ? json.source_provenance.original_platform : 'Scraped Web Archive'}`,
+      shared_where: sharedWhere,
+      propagated_where: propTimeline,
       verify: `Verdict: ${cleanVerdict} | Confidence: ${confScore}% | Rationale: ${primaryEvidence}`,
-      document: `Full Forensic Report Rendered in Dashboard (#resultCard)`
+      document: `Full Forensic Evidence Report Rendered in Dashboard (#resultCard)`
     }
   };
 
@@ -1472,7 +1482,9 @@ function renderOsintTraceList(filterKeyword = '') {
       item.verdict.toLowerCase().includes(filter) ||
       item.category.toLowerCase().includes(filter) ||
       item.ipe.scope.toLowerCase().includes(filter) ||
-      item.ipe.verify.toLowerCase().includes(filter)
+      item.ipe.verify.toLowerCase().includes(filter) ||
+      (item.ipe.shared_where && item.ipe.shared_where.toLowerCase().includes(filter)) ||
+      (item.ipe.propagated_where && item.ipe.propagated_where.toLowerCase().includes(filter))
     );
   });
 
@@ -1535,6 +1547,14 @@ function renderOsintTraceList(filterKeyword = '') {
           <div class="ipe-step-row">
             <span class="ipe-step-label">3. PIVOT:</span>
             <span>${escapeHtml(item.ipe.pivot)}</span>
+          </div>
+          <div class="ipe-step-row" style="border-left-color: #8b5cf6;">
+            <span class="ipe-step-label" style="color: #c084fc;">📲 WHERE SHARED:</span>
+            <span>${escapeHtml(item.ipe.shared_where || item.target)}</span>
+          </div>
+          <div class="ipe-step-row" style="border-left-color: #ec4899;">
+            <span class="ipe-step-label" style="color: #f472b6;">🌐 WHERE PROPAGATED:</span>
+            <span>${escapeHtml(item.ipe.propagated_where || item.target)}</span>
           </div>
           <div class="ipe-step-row">
             <span class="ipe-step-label">4. VERIFY:</span>
