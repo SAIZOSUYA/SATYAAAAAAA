@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const { supabase, isSupabaseConfigured } = require('./supabaseClient');
 
 const DB_PATH = path.join(__dirname, 'users_db.json');
 
@@ -96,6 +97,21 @@ function createUser({ name, email, password, role = 'user', is_verified = 1 }) {
 
   db.users.push(newUser);
   saveDb(db);
+
+  if (isSupabaseConfigured && supabase) {
+    supabase.from('users').upsert({
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      password_hash: newUser.passwordHash,
+      role: newUser.role,
+      is_verified: newUser.is_verified,
+      created_at: newUser.created_at
+    }).then(({ error }) => {
+      if (error) console.warn('Supabase createUser sync notice:', error.message);
+    });
+  }
+
   return sanitizeUser(newUser);
 }
 
@@ -107,6 +123,13 @@ function verifyUser(email) {
 
   user.is_verified = 1;
   saveDb(db);
+
+  if (isSupabaseConfigured && supabase) {
+    supabase.from('users').update({ is_verified: 1 }).eq('email', cleanEmail).then(({ error }) => {
+      if (error) console.warn('Supabase verifyUser sync notice:', error.message);
+    });
+  }
+
   return sanitizeUser(user);
 }
 
@@ -118,6 +141,13 @@ function revokeUser(email) {
 
   user.is_verified = 0;
   saveDb(db);
+
+  if (isSupabaseConfigured && supabase) {
+    supabase.from('users').update({ is_verified: 0 }).eq('email', cleanEmail).then(({ error }) => {
+      if (error) console.warn('Supabase revokeUser sync notice:', error.message);
+    });
+  }
+
   return sanitizeUser(user);
 }
 
@@ -129,6 +159,13 @@ function deleteUser(email) {
   if (db.users.length === initialCount) throw new Error('User not found.');
 
   saveDb(db);
+
+  if (isSupabaseConfigured && supabase) {
+    supabase.from('users').delete().eq('email', cleanEmail).then(({ error }) => {
+      if (error) console.warn('Supabase deleteUser sync notice:', error.message);
+    });
+  }
+
   return { success: true };
 }
 
