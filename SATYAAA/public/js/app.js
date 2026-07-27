@@ -28,46 +28,203 @@ function showAuthPanel() {
   if (appPanel) appPanel.classList.add('hide');
 }
 
+let currentUserState = null;
+
 async function checkSession() {
   try {
     const res = await fetch('/api/user');
     if (res.ok) {
       const data = await res.json();
       if (data.user) {
-        showAppPanel();
+        currentUserState = data.user;
+        updateUserUI(data.user);
         return;
       }
     }
   } catch (err) {
-    console.warn('Session check failed:', err.message);
+    console.warn('Session check notice:', err.message);
   }
-  // Default to main app workspace if auth panel isn't present
-  showAppPanel();
+  currentUserState = null;
+  updateUserUI(null);
 }
 
-if (loginForm) {
-  loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const emailInput = loginForm.querySelector('input[type="email"]');
-    const passwordInput = loginForm.querySelector('input[type="password"]');
-    if (emailInput && passwordInput) {
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: emailInput.value, password: passwordInput.value })
-        });
-        const data = await res.json();
-        if (data.success) {
-          showAppPanel();
-        } else {
-          alert(data.error || 'Login failed');
-        }
-      } catch (err) {
-        showAppPanel();
+function updateUserUI(user) {
+  const userProfileBadge = document.getElementById('userProfileBadge');
+  const showLoginBtn = document.getElementById('showLoginBtn');
+  const headerUserName = document.getElementById('headerUserName');
+  const headerVerifyStatus = document.getElementById('headerVerifyStatus');
+  const adminDashboardBtn = document.getElementById('adminDashboardBtn');
+  const pendingVerificationBanner = document.getElementById('pendingVerificationBanner');
+  const checkBtn = document.getElementById('checkBtn');
+  const checkAudioBtn = document.getElementById('checkAudioBtn');
+
+  if (user) {
+    if (userProfileBadge) userProfileBadge.classList.remove('hide');
+    if (showLoginBtn) showLoginBtn.classList.add('hide');
+    if (headerUserName) headerUserName.textContent = user.name || user.email.split('@')[0];
+
+    const isVerified = user.is_verified === 1 || user.role === 'admin';
+    const isAdmin = user.role === 'admin';
+
+    if (headerVerifyStatus) {
+      if (isAdmin) {
+        headerVerifyStatus.textContent = 'SUPER ADMIN';
+        headerVerifyStatus.className = 'verification-status-tag tag-admin';
+      } else if (isVerified) {
+        headerVerifyStatus.textContent = 'VERIFIED USER';
+        headerVerifyStatus.className = 'verification-status-tag tag-verified';
+      } else {
+        headerVerifyStatus.textContent = 'PENDING VERIFICATION';
+        headerVerifyStatus.className = 'verification-status-tag tag-pending';
       }
+    }
+
+    if (adminDashboardBtn) {
+      if (isAdmin) adminDashboardBtn.classList.remove('hide');
+      else adminDashboardBtn.classList.add('hide');
+    }
+
+    if (!isVerified) {
+      if (pendingVerificationBanner) pendingVerificationBanner.classList.remove('hide');
+      if (checkBtn) { checkBtn.disabled = true; checkBtn.title = 'Account pending admin verification'; }
+      if (checkAudioBtn) { checkAudioBtn.disabled = true; checkAudioBtn.title = 'Account pending admin verification'; }
     } else {
-      showAppPanel();
+      if (pendingVerificationBanner) pendingVerificationBanner.classList.add('hide');
+      if (checkBtn) { checkBtn.disabled = false; checkBtn.title = ''; }
+      if (checkAudioBtn) { checkAudioBtn.disabled = false; checkAudioBtn.title = ''; }
+    }
+  } else {
+    if (userProfileBadge) userProfileBadge.classList.add('hide');
+    if (showLoginBtn) showLoginBtn.classList.remove('hide');
+    if (adminDashboardBtn) adminDashboardBtn.classList.add('hide');
+    if (pendingVerificationBanner) pendingVerificationBanner.classList.add('hide');
+    if (checkBtn) { checkBtn.disabled = false; }
+    if (checkAudioBtn) { checkAudioBtn.disabled = false; }
+  }
+}
+
+// --- Auth Modal & Tab Handlers ---
+const authModal = document.getElementById('authModal');
+const showLoginBtn = document.getElementById('showLoginBtn');
+const closeAuthModalBtn = document.getElementById('closeAuthModalBtn');
+const cancelAuthBtn = document.getElementById('cancelAuthBtn');
+const tabSignIn = document.getElementById('tabSignIn');
+const tabRegister = document.getElementById('tabRegister');
+const nameGroup = document.getElementById('nameGroup');
+const submitAuthBtnText = document.getElementById('submitAuthBtnText');
+const authAlertMsg = document.getElementById('authAlertMsg');
+const authForm = document.getElementById('authForm');
+const demoAdminBtn = document.getElementById('demoAdminBtn');
+const demoUserBtn = document.getElementById('demoUserBtn');
+let isRegisterMode = false;
+
+function openAuthModal(registerMode = false) {
+  isRegisterMode = registerMode;
+  if (authModal) authModal.classList.remove('hide');
+  setAuthTab(registerMode);
+}
+
+function closeAuthModal() {
+  if (authModal) authModal.classList.add('hide');
+  if (authAlertMsg) authAlertMsg.classList.add('hide');
+}
+
+function setAuthTab(registerMode) {
+  isRegisterMode = registerMode;
+  if (registerMode) {
+    if (tabRegister) tabRegister.classList.add('active');
+    if (tabSignIn) tabSignIn.classList.remove('active');
+    if (nameGroup) nameGroup.classList.remove('hide');
+    if (submitAuthBtnText) submitAuthBtnText.textContent = 'Register Account';
+  } else {
+    if (tabSignIn) tabSignIn.classList.add('active');
+    if (tabRegister) tabRegister.classList.remove('active');
+    if (nameGroup) nameGroup.classList.add('hide');
+    if (submitAuthBtnText) submitAuthBtnText.textContent = 'Sign In';
+  }
+}
+
+if (showLoginBtn) showLoginBtn.addEventListener('click', () => openAuthModal(false));
+if (closeAuthModalBtn) closeAuthModalBtn.addEventListener('click', closeAuthModal);
+if (cancelAuthBtn) cancelAuthBtn.addEventListener('click', closeAuthModal);
+
+if (tabSignIn) tabSignIn.addEventListener('click', () => setAuthTab(false));
+if (tabRegister) tabRegister.addEventListener('click', () => setAuthTab(true));
+
+if (demoAdminBtn) {
+  demoAdminBtn.addEventListener('click', () => {
+    setAuthTab(false);
+    const email = document.getElementById('authEmail');
+    const pass = document.getElementById('authPassword');
+    if (email) email.value = 'admin@satyalens.gov.np';
+    if (pass) pass.value = 'SatyaAdmin@2026';
+  });
+}
+
+if (demoUserBtn) {
+  demoUserBtn.addEventListener('click', () => {
+    setAuthTab(false);
+    const email = document.getElementById('authEmail');
+    const pass = document.getElementById('authPassword');
+    if (email) email.value = 'satya@example.com';
+    if (pass) pass.value = 'Satya@123';
+  });
+}
+
+if (authForm) {
+  authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nameVal = document.getElementById('authName')?.value || '';
+    const emailVal = document.getElementById('authEmail')?.value || '';
+    const passVal = document.getElementById('authPassword')?.value || '';
+
+    if (authAlertMsg) authAlertMsg.classList.add('hide');
+
+    const endpoint = isRegisterMode ? '/api/register' : '/api/login';
+    const payload = isRegisterMode
+      ? { name: nameVal, email: emailVal, password: passVal }
+      : { email: emailVal, password: passVal };
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        if (authAlertMsg) {
+          authAlertMsg.textContent = data.error || 'Authentication failed';
+          authAlertMsg.className = 'auth-alert-msg alert-error';
+          authAlertMsg.classList.remove('hide');
+        }
+        return;
+      }
+
+      if (isRegisterMode) {
+        if (authAlertMsg) {
+          authAlertMsg.textContent = 'Account registered! An administrator must verify your account before you can run analysis. Please Sign In.';
+          authAlertMsg.className = 'auth-alert-msg alert-success';
+          authAlertMsg.classList.remove('hide');
+        }
+        setAuthTab(false);
+        return;
+      }
+
+      closeAuthModal();
+      currentUserState = data.user;
+      updateUserUI(data.user);
+
+      if (data.pending_verification) {
+        alert('Welcome! Your account is registered, but pending administrator verification. An admin must verify your account before you can run AI analysis.');
+      }
+    } catch (err) {
+      if (authAlertMsg) {
+        authAlertMsg.textContent = 'Server connection error. Please try again.';
+        authAlertMsg.className = 'auth-alert-msg alert-error';
+        authAlertMsg.classList.remove('hide');
+      }
     }
   });
 }
@@ -77,13 +234,140 @@ if (logoutBtn) {
     try {
       await fetch('/api/logout', { method: 'POST' });
     } catch (e) {}
-    if (authPanel) {
-      showAuthPanel();
-    } else {
-      showAppPanel();
-    }
+    currentUserState = null;
+    updateUserUI(null);
+    alert('Logged out successfully.');
   });
 }
+
+// --- Admin Database User Management ---
+const adminDashboardBtn = document.getElementById('adminDashboardBtn');
+const adminUsersModal = document.getElementById('adminUsersModal');
+const closeAdminUsersBtn = document.getElementById('closeAdminUsersBtn');
+const closeAdminModalFooterBtn = document.getElementById('closeAdminModalFooterBtn');
+const refreshAdminUsersBtn = document.getElementById('refreshAdminUsersBtn');
+const adminUsersTableBody = document.getElementById('adminUsersTableBody');
+
+function openAdminUsersModal() {
+  if (adminUsersModal) adminUsersModal.classList.remove('hide');
+  fetchAdminUsers();
+}
+
+function closeAdminUsersModal() {
+  if (adminUsersModal) adminUsersModal.classList.add('hide');
+}
+
+if (adminDashboardBtn) adminDashboardBtn.addEventListener('click', openAdminUsersModal);
+if (closeAdminUsersBtn) closeAdminUsersBtn.addEventListener('click', closeAdminUsersModal);
+if (closeAdminModalFooterBtn) closeAdminModalFooterBtn.addEventListener('click', closeAdminUsersModal);
+if (refreshAdminUsersBtn) refreshAdminUsersBtn.addEventListener('click', fetchAdminUsers);
+
+async function fetchAdminUsers() {
+  if (!adminUsersTableBody) return;
+  adminUsersTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted);">Loading database user records...</td></tr>';
+
+  try {
+    const res = await fetch('/api/admin/users');
+    if (!res.ok) throw new Error('Failed to load user database.');
+    const data = await res.json();
+    renderAdminUsersTable(data.users || []);
+  } catch (err) {
+    adminUsersTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:18px; color:#f43f5e;">Error: ${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
+function renderAdminUsersTable(usersList) {
+  if (!adminUsersTableBody) return;
+  if (!usersList || usersList.length === 0) {
+    adminUsersTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted);">No users found in database.</td></tr>';
+    return;
+  }
+
+  const rows = usersList.map(u => {
+    const isVer = u.is_verified === 1 || u.role === 'admin';
+    const statusBadge = isVer
+      ? '<span class="status-chip chip-verified">✅ Verified</span>'
+      : '<span class="status-chip chip-pending">⏳ Pending Verification</span>';
+
+    const regDate = u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A';
+    const lastLogin = u.last_login ? new Date(u.last_login).toLocaleString() : 'N/A';
+    const isSuperAdmin = u.email.toLowerCase() === 'admin@satyalens.gov.np';
+
+    let actionBtns = '';
+    if (!isSuperAdmin) {
+      if (u.is_verified === 1) {
+        actionBtns += `<button type="button" class="admin-action-btn btn-revoke" onclick="revokeUserAccess('${escapeHtml(u.email)}')">Revoke Access</button>`;
+      } else {
+        actionBtns += `<button type="button" class="admin-action-btn btn-verify" onclick="verifyUserAccess('${escapeHtml(u.email)}')">✅ Verify User</button>`;
+      }
+      actionBtns += ` <button type="button" class="admin-action-btn btn-delete" onclick="deleteUserRecord('${escapeHtml(u.email)}')">Delete</button>`;
+    } else {
+      actionBtns = '<span style="font-size:0.75rem; color:#9ca3af; font-weight:700;">Super Admin (Protected)</span>';
+    }
+
+    return `
+      <tr>
+        <td><strong>${escapeHtml(u.name || 'N/A')}</strong></td>
+        <td>${escapeHtml(u.email)}</td>
+        <td><span class="role-pill ${u.role === 'admin' ? 'role-admin' : 'role-user'}">${escapeHtml(u.role)}</span></td>
+        <td>${statusBadge}</td>
+        <td style="font-size:0.8rem; color:#9ca3af;">${escapeHtml(regDate)}</td>
+        <td style="font-size:0.8rem; color:#9ca3af;">${escapeHtml(lastLogin)}</td>
+        <td>${actionBtns}</td>
+      </tr>
+    `;
+  }).join('');
+
+  adminUsersTableBody.innerHTML = rows;
+}
+
+window.verifyUserAccess = async function(email) {
+  try {
+    const res = await fetch('/api/admin/verify-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || 'Verification failed');
+    fetchAdminUsers();
+    checkSession();
+  } catch (err) {
+    alert(`Error verifying user: ${err.message}`);
+  }
+};
+
+window.revokeUserAccess = async function(email) {
+  try {
+    const res = await fetch('/api/admin/revoke-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || 'Revoke failed');
+    fetchAdminUsers();
+    checkSession();
+  } catch (err) {
+    alert(`Error revoking user: ${err.message}`);
+  }
+};
+
+window.deleteUserRecord = async function(email) {
+  if (!confirm(`Are you sure you want to delete user ${email} from the database?`)) return;
+  try {
+    const res = await fetch('/api/admin/delete-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || 'Delete failed');
+    fetchAdminUsers();
+  } catch (err) {
+    alert(`Error deleting user: ${err.message}`);
+  }
+};
 
 if (sampleLinkBtn) {
   sampleLinkBtn.addEventListener('click', () => {

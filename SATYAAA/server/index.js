@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const datasetLoader = require('./datasetLoader');
 const fastAiDetector = require('./fastAiDetector');
+const db = require('./database');
 
 const multer = require('multer');
 const upload = multer({
@@ -49,18 +50,54 @@ app.get('/api/dataset-insights', (req, res) => {
   return res.json({ success: true, datasetInfo: info });
 });
 
-const users = {
-  'satya@example.com': {
-    passwordHash: bcrypt.hashSync('Satya@123', 10),
-    name: 'Satya User'
-  }
-};
-
 function requireAuth(req, res, next) {
   if (req.session && req.session.user) return next();
-  return res.status(401).json({ error: 'Unauthorized' });
+  return res.status(401).json({ error: 'Unauthorized. Please sign in.' });
 }
 
+function requireVerified(req, res, next) {
+  if (req.session && req.session.user) {
+    if (req.session.user.is_verified === 1 || req.session.user.role === 'admin') {
+      return next();
+    }
+    return res.status(403).json({
+      error: 'Account Pending Verification',
+      message: 'Your account registration has not been verified by an administrator yet. Contact your administrator to verify your account.'
+    });
+  }
+  return res.status(401).json({ error: 'Unauthorized. Please sign in.' });
+}
+
+function requireAdmin(req, res, next) {
+  if (req.session && req.session.user && req.session.user.role === 'admin') {
+    return next();
+  }
+  return res.status(403).json({ error: 'Forbidden: Admin privilege required' });
+}
+
+// User Registration
+app.post('/api/register', (req, res) => {
+  try {
+    const { name, email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Please provide both email and password' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+
+    const newUser = db.createUser({ name, email, password });
+    return res.json({
+      success: true,
+      message: 'Account registered successfully! An administrator must verify your account before you can run analysis.',
+      user: newUser
+    });
+  } catch (err) {
+    return res.status(400).json({ error: err.message || 'Registration failed' });
+  }
+});
+
+// User Login
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) {
@@ -68,38 +105,89 @@ app.post('/api/login', (req, res) => {
   }
 
   const cleanEmail = String(email).trim().toLowerCase();
-  let user = users[cleanEmail];
+  const rawUser = db.findUserByEmail(cleanEmail);
 
-  if (!user) {
-    // Auto-create user account on first sign-in
-    users[cleanEmail] = {
-      passwordHash: bcrypt.hashSync(password, 10),
-      name: cleanEmail.split('@')[0] || 'User'
-    };
-    user = users[cleanEmail];
-  } else {
-    // Allow sign in and update password hash if changed
-    user.passwordHash = bcrypt.hashSync(password, 10);
+  if (!rawUser) {
+    return res.status(401).json({ error: 'No account found with this email address. Please register first.' });
   }
 
-  req.session.user = { email: cleanEmail, name: user.name };
+  const match = bcrypt.compareSync(password, rawUser.passwordHash);
+  if (!match) {
+    return res.status(401).json({ error: 'Incorrect password. Please try again.' });
+  }
+
+  db.updateLastLogin(cleanEmail);
+  const sanitized = db.sanitizeUser(rawUser);
+  req.session.user = sanitized;
+
   req.session.save((err) => {
-    if (err) {
-      console.error('Session save error:', err);
-    }
-    return res.json({ success: true, user: req.session.user });
+    if (err) console.error('Session save error:', err);
+    return res.json({
+      success: true,
+      pending_verification: sanitized.is_verified === 0 && sanitized.role !== 'admin',
+      user: sanitized
+    });
   });
 });
 
+// User Logout
 app.post('/api/logout', (req, res) => {
   req.session.destroy(() => res.json({ success: true }));
 });
 
+// Current Authenticated User & Verification Status
 app.get('/api/user', (req, res) => {
   if (req.session && req.session.user) {
-    return res.json({ user: req.session.user });
+    const freshUser = db.findUserByEmail(req.session.user.email);
+    if (freshUser) {
+      const sanitized = db.sanitizeUser(freshUser);
+      req.session.user = sanitized;
+      return res.json({ user: sanitized });
+    }
   }
   return res.status(401).json({ error: 'Unauthorized' });
+});
+
+// Admin User Management API Routes
+app.get('/api/admin/users', requireAdmin, (req, res) => {
+  const allUsers = db.getAllUsers();
+  return res.json({ success: true, users: allUsers });
+});
+
+app.post('/api/admin/verify-user', requireAdmin, (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'Missing email' });
+    const updated = db.verifyUser(email);
+    return res.json({ success: true, user: updated });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/revoke-user', requireAdmin, (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'Missing email' });
+    const updated = db.revokeUser(email);
+    return res.json({ success: true, user: updated });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/delete-user', requireAdmin, (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'Missing email' });
+    if (email.toLowerCase() === 'admin@satyalens.gov.np') {
+      return res.status(400).json({ error: 'Cannot delete primary super admin account' });
+    }
+    db.deleteUser(email);
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
 });
 
 app.post('/api/verify-link', async (req, res) => {
