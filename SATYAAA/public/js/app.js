@@ -82,7 +82,11 @@ function updateUserUI(user) {
     }
 
     if (adminDashboardBtn) {
-      adminDashboardBtn.classList.remove('hide');
+      if (isAdmin) {
+        adminDashboardBtn.classList.remove('hide');
+      } else {
+        adminDashboardBtn.classList.add('hide');
+      }
     }
 
     if (!isVerified) {
@@ -97,7 +101,7 @@ function updateUserUI(user) {
   } else {
     if (userProfileBadge) userProfileBadge.classList.add('hide');
     if (showLoginBtn) showLoginBtn.classList.remove('hide');
-    if (adminDashboardBtn) adminDashboardBtn.classList.remove('hide');
+    if (adminDashboardBtn) adminDashboardBtn.classList.add('hide');
     if (pendingVerificationBanner) pendingVerificationBanner.classList.add('hide');
     if (checkBtn) { checkBtn.disabled = false; }
     if (checkAudioBtn) { checkAudioBtn.disabled = false; }
@@ -359,6 +363,10 @@ const refreshAdminUsersBtn = document.getElementById('refreshAdminUsersBtn');
 const adminUsersTableBody = document.getElementById('adminUsersTableBody');
 
 function openAdminUsersModal() {
+  if (!currentUserState || currentUserState.role !== 'admin') {
+    alert('Access Denied: User Verification Database is restricted exclusively to Super Administrator accounts.');
+    return;
+  }
   const modal = document.getElementById('adminUsersModal');
   if (modal) {
     modal.classList.remove('hide');
