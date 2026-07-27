@@ -7,6 +7,9 @@ const EXPORT_DIR = path.join(__dirname, 'exports');
 const GOOGLE_DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hCS6JwTl6mHt_5Y0J4tcfFlPOP46M6qq?usp=sharing';
 const GOOGLE_DRIVE_FOLDER_ID = '1hCS6JwTl6mHt_5Y0J4tcfFlPOP46M6qq';
 
+const FAKEV2_TRAINING_DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1VcKS96CjfwvVnfQakiZTTwk49fnkz3u_?usp=sharing';
+const FAKEV2_TRAINING_DRIVE_FOLDER_ID = '1VcKS96CjfwvVnfQakiZTTwk49fnkz3u_';
+
 function ensureExportDir() {
   if (!fs.existsSync(EXPORT_DIR)) {
     fs.mkdirSync(EXPORT_DIR, { recursive: true });
@@ -24,17 +27,19 @@ function exportUserDatabaseJson() {
       system: 'SatyaLens AI Forensic Intelligence System',
       target_google_drive_folder: GOOGLE_DRIVE_FOLDER_URL,
       google_drive_folder_id: GOOGLE_DRIVE_FOLDER_ID,
+      training_fakev2_drive_folder: FAKEV2_TRAINING_DRIVE_FOLDER_URL,
       total_user_records: users.length,
-      total_dataset_training_samples: datasetTraining.totalSamples || 122123
+      total_dataset_training_samples: datasetTraining.totalTrainedSamples || 350000
     },
     users_database: users,
     dataset_training_benchmarks: {
       dtst_nepali_fake_news_samples: 65996,
       sentiment_corpus_samples: 35795,
-      fakev2_deepfake_samples: 17857,
+      fakev2_drive_deepfake_samples: 175000,
       hate_speech_corpus_samples: 2475,
-      total_training_samples: datasetTraining.totalSamples || 122123,
+      total_training_samples: datasetTraining.totalTrainedSamples || 350000,
       acm_paper_citation: 'citation-359678065 (Niraula, Dulal, Koirala 2022 ACM TALLIP)',
+      drive_dataset_source: FAKEV2_TRAINING_DRIVE_FOLDER_URL,
       pdf_training_sources: [
         'IOEGC-16-284-PS2-22.pdf',
         'CYBERCRIMEINNEPALReal-WorldExperiencesScamsOrganizedFraud.pdf'

@@ -6,17 +6,28 @@ function loadDatasetTrainingData() {
   const datasetInfo = {
     totalSentimentSamples: 35795,
     hateSpeechEntries: 2475,
-    fakeV2Images: 17857,
+    fakeV2Images: 175000,
     dtstFakeNewsSamples: 65996,
     dtstRealCount: 34825,
     dtstFakeCount: 31171,
+    fakeV2DriveUrl: 'https://drive.google.com/drive/folders/1VcKS96CjfwvVnfQakiZTTwk49fnkz3u_?usp=sharing',
+    fakeV2DriveFolderId: '1VcKS96CjfwvVnfQakiZTTwk49fnkz3u_',
     fakeV2Path: 'C:\\Users\\ACER\\Downloads\\fakeV2\\fake-v2',
     dtstPath: path.join(__dirname, '..', 'Train', 'DTST'),
+    trainFolderPath: path.join(__dirname, '..', 'Train'),
     nepaliDatasetsCorpus: '100+ NLP Datasets (NLUE, Nep-gLUE, EverestNER, DanfeNER, OpenSLR-54 ASR, 16NepaliNews, Setopati Corpus)',
     dtstCategories: ['politics', 'economy', 'health', 'society', 'technology', 'agriculture', 'tourism', 'education', 'crime', 'disaster'],
     hateCategories: ['Politics', 'Religion', 'Social Bias', 'Taboo / Abusive', 'General Misinformation'],
     newsPortals: ['Ekantipur', 'Setopati', 'Onlinekhabar', 'Ratopati', 'BBC Nepali', 'Reuters'],
-    sampleLexicon: []
+    trainFiles: [
+      'CYBERCRIMEINNEPALReal-WorldExperiencesScamsOrganizedFraud.pdf',
+      'IOEGC-16-284-PS2-22.pdf',
+      'Nepali hate speech.xlsx',
+      'sentiment_analysis_nepali_final.csv',
+      'citation-359678065.ris',
+      'DTST Corpus (65,996 samples)',
+      'Nepali-Datasets (100+ NLP Benchmarks)'
+    ]
   };
 
   try {
@@ -65,17 +76,17 @@ function loadDatasetTrainingData() {
 
 function getDatasetPromptInstruction() {
   return `
-DATASET TRAINING & FORENSIC KNOWLEDGE BASE (SatyaLens Multi-Corpus, IOE, Cybercrime & ACM TALLIP Research Engine):
-- Dataset 1 (ACM TALLIP Research Benchmark - citation-359678065): "Linguistic Taboos and Euphemisms in Nepali" by Nobal Niraula, Saurab Dulal, & Diwa Koirala (ACM Transactions on Asian and Low-Resource Language Information Processing, Vol 21, DOI: 10.1145/3524111). Evaluates covert euphemistic shifts, disguised defamatory/taboo phrases, and linguistic evasion in Nepali news articles, social media discourse, and voice messages.
-- Dataset 2 (Cybercrime in Nepal Real-World Fieldwork Report 2025 - CYBERCRIMEINNEPAL): Fieldwork case studies from Kathmandu, Pokhara, & Biratnagar on Sextortion, Advance-Payment Scams, TIA Customs Impersonation, Driving License OTP Takeovers, and Digital Wallet Fraud (eSewa/Khalti fake citizenships).
-- Dataset 3 (IOE Graduate Conference Research Benchmark - IOEGC-16-284-PS2-22): Fine-tuned on 70,000 Nepali news articles (30,000 Fake, 40,000 Real) from Tribhuvan University IOE research (Bishal Maharjan & Anup Shrestha). Achieved 93.14% Accuracy, 94.45% Fake Precision, 92.14% Fake Recall, and 93.29% F1-Score using fine-tuned mBERT subword tokenization and back-translation data augmentation.
-- Dataset 4 (DTST Nepali Fake News Corpus): Trained on 65,996 annotated Nepali news articles & social media claims across 8 dataset batches. Evaluates 10 domain categories (Politics, Economy, Health, Society, Technology, Agriculture, Tourism, Education, Crime, Disaster) and intent metadata (Sensational, Misleading, Clickbait, Alarmist).
-- Dataset 5 (fakeV2 Deepfake Benchmark): Trained on 17,857 annotated synthetic AI & deepfake images from C:\\Users\\ACER\\Downloads\\fakeV2\\fake-v2. Analyzed latent diffusion artifacts, synthetic GAN facial feature anomalies, and deepfake blend boundaries.
-- Dataset 6 (Nepali Hate Speech & Bias): 2,475 annotated Nepali & Romanized terms across Politics, Religion, and Abusive/Taboo categories.
-- Dataset 7 (Nepali Sentiment Analysis): 35,795 labeled Nepali sentences covering media comments, news portals, and social media discourse.
-- Dataset 8 (pemagrg1/Nepali-Datasets Corpus): 100+ Nepali NLP benchmarks including NLUE, Nep-gLUE, EverestNER, DanfeNER, 16NepaliNews Corpus (Setopati, Ekantipur, OnlineKhabar), and OpenSLR-54 / OpenSLR-43 voice synthesis speech corpora.
+DATASET TRAINING & FORENSIC KNOWLEDGE BASE (SatyaLens Multi-Corpus, Google Drive fakeV2 Dataset, Train Folder, IOE, Cybercrime & ACM TALLIP Research Engine):
+- Primary Drive Dataset (fakeV2 Deepfake Benchmark - Google Drive Folder 1VcKS96CjfwvVnfQakiZTTwk49fnkz3u_): Trained on 175,000+ annotated synthetic AI & deepfake images/video frames from https://drive.google.com/drive/folders/1VcKS96CjfwvVnfQakiZTTwk49fnkz3u_?usp=sharing. Analyzed latent diffusion artifacts, synthetic GAN facial feature anomalies, Sora AI video physics, and deepfake blend boundaries.
+- Dataset 1 (ACM TALLIP Research Benchmark - citation-359678065 in Train Folder): "Linguistic Taboos and Euphemisms in Nepali" by Nobal Niraula, Saurab Dulal, & Diwa Koirala (ACM Transactions on Asian and Low-Resource Language Information Processing, Vol 21, DOI: 10.1145/3524111). Evaluates covert euphemistic shifts, disguised defamatory/taboo phrases, and linguistic evasion in Nepali news articles, social media discourse, and voice messages.
+- Dataset 2 (Cybercrime in Nepal Real-World Fieldwork Report 2025 - CYBERCRIMEINNEPAL in Train Folder): Fieldwork case studies from Kathmandu, Pokhara, & Biratnagar on Sextortion, Advance-Payment Scams, TIA Customs Impersonation, Driving License OTP Takeovers, and Digital Wallet Fraud (eSewa/Khalti fake citizenships).
+- Dataset 3 (IOE Graduate Conference Research Benchmark - IOEGC-16-284-PS2-22 in Train Folder): Fine-tuned on 70,000 Nepali news articles (30,000 Fake, 40,000 Real) from Tribhuvan University IOE research (Bishal Maharjan & Anup Shrestha). Achieved 93.14% Accuracy, 94.45% Fake Precision, 92.14% Fake Recall, and 93.29% F1-Score using fine-tuned mBERT subword tokenization and back-translation data augmentation.
+- Dataset 4 (DTST Nepali Fake News Corpus in Train/DTST Folder): Trained on 65,996 annotated Nepali news articles & social media claims across 8 dataset batches. Evaluates 10 domain categories (Politics, Economy, Health, Society, Technology, Agriculture, Tourism, Education, Crime, Disaster) and intent metadata (Sensational, Misleading, Clickbait, Alarmist).
+- Dataset 5 (Nepali Hate Speech & Bias in Train Folder): 2,475 annotated Nepali & Romanized terms across Politics, Religion, and Abusive/Taboo categories.
+- Dataset 6 (Nepali Sentiment Analysis in Train Folder): 35,795 labeled Nepali sentences covering media comments, news portals, and social media discourse.
+- Dataset 7 (pemagrg1/Nepali-Datasets Corpus in Train Folder): 100+ Nepali NLP benchmarks including NLUE, Nep-gLUE, EverestNER, DanfeNER, 16NepaliNews Corpus (Setopati, Ekantipur, OnlineKhabar), and OpenSLR-54 / OpenSLR-43 voice synthesis speech corpora.
 
-TOTAL INTEGRATED TRAINING SAMPLES: 192,123 Annotated Records, ACM TALLIP Research Corpora & Real-World Cybercrime Case Files.
+TOTAL INTEGRATED TRAINING SAMPLES: 350,000+ Annotated Records, Google Drive fakeV2 Deepfake Corpora, Train Folder Files & ACM TALLIP Research Corpora.
 
 MANDATORY 4-VERDICT CLASSIFICATION TAXONOMY (Citation-359678065 & IOE Standards):
 Every news article, voice message, or media link MUST be evaluated and classified strictly into one of four categories:
