@@ -413,17 +413,17 @@ function renderAdminUsersTable(usersList) {
       }
       actionBtns += ` <button type="button" class="admin-action-btn btn-delete" onclick="deleteUserRecord('${escapeHtml(u.email)}')">Delete</button>`;
     } else {
-      actionBtns = '<span style="font-size:0.75rem; color:#9ca3af; font-weight:700;">Super Admin (Protected)</span>';
+      actionBtns = '<span class="col-protected-text">Super Admin (Protected)</span>';
     }
 
     return `
       <tr>
-        <td><strong>${escapeHtml(u.name || 'N/A')}</strong></td>
-        <td>${escapeHtml(u.email)}</td>
+        <td><strong class="col-user-name">${escapeHtml(u.name || 'N/A')}</strong></td>
+        <td><span class="col-user-email">${escapeHtml(u.email)}</span></td>
         <td><span class="role-pill ${u.role === 'admin' ? 'role-admin' : 'role-user'}">${escapeHtml(u.role)}</span></td>
         <td>${statusBadge}</td>
-        <td style="font-size:0.8rem; color:#9ca3af;">${escapeHtml(regDate)}</td>
-        <td style="font-size:0.8rem; color:#9ca3af;">${escapeHtml(lastLogin)}</td>
+        <td><span class="col-date-text">${escapeHtml(regDate)}</span></td>
+        <td><span class="col-date-text">${escapeHtml(lastLogin)}</span></td>
         <td>${actionBtns}</td>
       </tr>
     `;

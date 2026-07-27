@@ -1867,6 +1867,26 @@ body.light-mode .demo-chip:hover {
   color: #ffffff;
 }
 
+.col-user-name {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.col-user-email {
+  color: #cbd5e1;
+}
+
+.col-date-text {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.col-protected-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 700;
+}
+
 .btn-delete {
   background: rgba(244, 63, 94, 0.2);
   color: #fda4af;
@@ -1876,6 +1896,140 @@ body.light-mode .demo-chip:hover {
 .btn-delete:hover {
   background: #f43f5e;
   color: #ffffff;
+}
+
+/* --- Light Mode Overrides for Admin User Verification Database Modal --- */
+body.light-mode .admin-modal-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(225, 29, 72, 0.25) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15) !important;
+  color: #0f172a !important;
+}
+
+body.light-mode .admin-modal-card .modal-header h3 {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+body.light-mode .admin-modal-card .modal-header p {
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+
+body.light-mode .admin-users-table-container {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  border-radius: 10px;
+}
+
+body.light-mode .users-db-table th {
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+  font-weight: 800 !important;
+}
+
+body.light-mode .users-db-table td {
+  color: #0f172a !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  font-weight: 600 !important;
+}
+
+body.light-mode .users-db-table tr:hover {
+  background: #f1f5f9 !important;
+}
+
+body.light-mode .col-user-name {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+body.light-mode .col-user-email {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+body.light-mode .col-date-text {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+body.light-mode .col-protected-text {
+  color: #64748b !important;
+  font-weight: 800 !important;
+}
+
+body.light-mode .role-admin {
+  background: rgba(225, 29, 72, 0.12) !important;
+  color: #be123c !important;
+  border: 1px solid rgba(225, 29, 72, 0.3) !important;
+}
+
+body.light-mode .role-user {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body.light-mode .chip-verified {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+body.light-mode .chip-pending {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #b45309 !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+}
+
+body.light-mode .admin-action-btn.btn-verify {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+}
+
+body.light-mode .admin-action-btn.btn-verify:hover {
+  background: #10b981 !important;
+  color: #ffffff !important;
+}
+
+body.light-mode .admin-action-btn.btn-revoke {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #b45309 !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+}
+
+body.light-mode .admin-action-btn.btn-revoke:hover {
+  background: #f59e0b !important;
+  color: #ffffff !important;
+}
+
+body.light-mode .admin-action-btn.btn-delete {
+  background: rgba(244, 63, 94, 0.15) !important;
+  color: #be123c !important;
+  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+}
+
+body.light-mode .admin-action-btn.btn-delete:hover {
+  background: #f43f5e !important;
+  color: #ffffff !important;
+}
+
+body.light-mode .admin-modal-card .modal-footer {
+  border-top: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+}
+
+body.light-mode .admin-modal-card .ghost {
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  background: #ffffff !important;
+}
+
+body.light-mode .admin-modal-card .ghost:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
 }
 
 /* Cyber Modal Overlay */
