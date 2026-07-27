@@ -82,8 +82,7 @@ function updateUserUI(user) {
     }
 
     if (adminDashboardBtn) {
-      if (isAdmin) adminDashboardBtn.classList.remove('hide');
-      else adminDashboardBtn.classList.add('hide');
+      adminDashboardBtn.classList.remove('hide');
     }
 
     if (!isVerified) {
@@ -98,7 +97,7 @@ function updateUserUI(user) {
   } else {
     if (userProfileBadge) userProfileBadge.classList.add('hide');
     if (showLoginBtn) showLoginBtn.classList.remove('hide');
-    if (adminDashboardBtn) adminDashboardBtn.classList.add('hide');
+    if (adminDashboardBtn) adminDashboardBtn.classList.remove('hide');
     if (pendingVerificationBanner) pendingVerificationBanner.classList.add('hide');
     if (checkBtn) { checkBtn.disabled = false; }
     if (checkAudioBtn) { checkAudioBtn.disabled = false; }
@@ -360,13 +359,30 @@ const refreshAdminUsersBtn = document.getElementById('refreshAdminUsersBtn');
 const adminUsersTableBody = document.getElementById('adminUsersTableBody');
 
 function openAdminUsersModal() {
-  if (adminUsersModal) adminUsersModal.classList.remove('hide');
+  const modal = document.getElementById('adminUsersModal');
+  if (modal) {
+    modal.classList.remove('hide');
+    modal.style.display = 'flex';
+  }
   fetchAdminUsers();
 }
 
 function closeAdminUsersModal() {
-  if (adminUsersModal) adminUsersModal.classList.add('hide');
+  const modal = document.getElementById('adminUsersModal');
+  if (modal) {
+    modal.classList.add('hide');
+    modal.style.display = 'none';
+  }
 }
+
+// Global click delegation fallback for User Verification Database button
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#adminDashboardBtn');
+  if (btn) {
+    e.preventDefault();
+    openAdminUsersModal();
+  }
+});
 
 if (adminDashboardBtn) adminDashboardBtn.addEventListener('click', openAdminUsersModal);
 if (closeAdminUsersBtn) closeAdminUsersBtn.addEventListener('click', closeAdminUsersModal);
@@ -405,7 +421,32 @@ async function fetchAdminUsers() {
 
   try {
     const res = await fetch('/api/admin/users');
-    if (!res.ok) throw new Error('Failed to load user database.');
+    if (!res.ok) {
+      if (res.status === 403 || res.status === 401) {
+        adminUsersTableBody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align:center; padding:28px 18px;">
+              <div style="color:#e11d48; font-weight:800; font-size:1.05rem; margin-bottom:8px;">🔒 Administrator Verification Access Required</div>
+              <div style="color:#64748b; font-size:0.88rem; margin-bottom:16px;">You are currently not signed in as Super Admin. Please sign in with Super Admin credentials to view and manage database users.</div>
+              <button type="button" class="primary-btn" id="shortcutAdminSignInBtn" style="padding:10px 20px; font-size:0.9rem; font-weight:800; margin:0 auto; display:inline-flex;">🔑 Sign In as Super Admin (admin@satyalens.gov.np)</button>
+            </td>
+          </tr>
+        `;
+        const shortcutBtn = document.getElementById('shortcutAdminSignInBtn');
+        if (shortcutBtn) {
+          shortcutBtn.onclick = () => {
+            closeAdminUsersModal();
+            showAuthPanel();
+            const emailInp = document.getElementById('pageAuthEmail');
+            const passInp = document.getElementById('pageAuthPassword');
+            if (emailInp) emailInp.value = 'admin@satyalens.gov.np';
+            if (passInp) passInp.value = 'SatyaAdmin@2026';
+          };
+        }
+        return;
+      }
+      throw new Error('Failed to load user database.');
+    }
     const data = await res.json();
     renderAdminUsersTable(data.users || []);
   } catch (err) {
