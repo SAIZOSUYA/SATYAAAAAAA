@@ -1437,6 +1437,51 @@ input:focus {
   }
 }
 
+/* Standalone Login & Registration Screen Styling */
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 85vh;
+  padding: 20px;
+}
+
+.auth-card-standalone {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(18, 12, 28, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(244, 63, 94, 0.15);
+  animation: slideUp 0.35s ease;
+}
+
+.auth-brand-hero {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-logo-hero {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 12px rgba(244, 63, 94, 0.5));
+}
+
+.auth-brand-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.auth-brand-tagline {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
 /* User Auth & Verification Badges */
 .user-auth-pill {
   display: flex;

@@ -39,8 +39,65 @@
   <div class="bg-grid"></div>
 
   <div class="page">
-    <!-- App Main Panel (Direct Dashboard Workspace) -->
-    <div class="panel app-panel" id="appPanel">
+    <!-- Standalone Full-Screen Login & Registration Page (Shown BEFORE Landing Page) -->
+    <div class="panel auth-panel" id="authPanel">
+      <div class="auth-card-standalone">
+        <div class="auth-brand-hero">
+          <img src="img/satya-shield-logo.svg" alt="सत्यता Lens Emblem Logo" class="auth-logo-hero" />
+          <h1 class="auth-brand-title">
+            <span class="title-devanagari">सत्यता</span>
+            <span class="title-english">Lens</span>
+          </h1>
+          <p class="auth-brand-tagline">Next-Gen Deepfake Forensic Intelligence & Nepali News Cross-Referencing</p>
+        </div>
+
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab-btn active" id="pageTabSignIn">Sign In</button>
+          <button type="button" class="auth-tab-btn" id="pageTabRegister">Register Account</button>
+        </div>
+
+        <div class="auth-alert-msg hide" id="pageAuthAlertMsg"></div>
+
+        <form id="standaloneAuthForm" onsubmit="return false;">
+          <div class="form-group hide" id="pageNameGroup">
+            <label for="pageAuthName">Full Name</label>
+            <div class="input-wrapper">
+              <input type="text" id="pageAuthName" placeholder="Enter your full name" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="pageAuthEmail">Email Address</label>
+            <div class="input-wrapper">
+              <input type="email" id="pageAuthEmail" placeholder="e.g. user@example.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="pageAuthPassword">Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="pageAuthPassword" placeholder="Enter password (min 6 characters)" required />
+            </div>
+          </div>
+
+          <!-- Quick Demo Accounts Helper -->
+          <div class="demo-accounts-box">
+            <div class="demo-box-title">🔑 Pre-seeded Database Accounts:</div>
+            <div class="demo-account-chips">
+              <button type="button" class="demo-chip" id="pageDemoAdminBtn">👑 Super Admin (admin@satyalens.gov.np)</button>
+              <button type="button" class="demo-chip" id="pageDemoUserBtn">✅ Verified User (satya@example.com)</button>
+            </div>
+          </div>
+
+          <button type="submit" class="primary-btn auth-submit-btn" id="pageSubmitAuthBtn" style="width: 100%; margin-top: 18px; padding: 12px; font-size: 0.95rem; font-weight: 800;">
+            <span id="pageSubmitAuthBtnText">Sign In & Access SatyaLens</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- App Main Panel (Landing Page Dashboard - Hidden until authenticated) -->
+    <div class="panel app-panel hide" id="appPanel">
       <header class="app-header">
         <div class="brand-sm">
           <img src="img/satya-shield-logo.svg" alt="सत्यता Lens Emblem Logo" class="logo-img-sm" />

@@ -38,6 +38,7 @@ async function checkSession() {
       if (data.user) {
         currentUserState = data.user;
         updateUserUI(data.user);
+        showAppPanel();
         return;
       }
     }
@@ -46,6 +47,7 @@ async function checkSession() {
   }
   currentUserState = null;
   updateUserUI(null);
+  showAuthPanel();
 }
 
 function updateUserUI(user) {
@@ -101,6 +103,113 @@ function updateUserUI(user) {
     if (checkBtn) { checkBtn.disabled = false; }
     if (checkAudioBtn) { checkAudioBtn.disabled = false; }
   }
+}
+
+// --- Standalone Login & Registration Page Handlers ---
+const pageTabSignIn = document.getElementById('pageTabSignIn');
+const pageTabRegister = document.getElementById('pageTabRegister');
+const pageNameGroup = document.getElementById('pageNameGroup');
+const pageSubmitAuthBtnText = document.getElementById('pageSubmitAuthBtnText');
+const pageAuthAlertMsg = document.getElementById('pageAuthAlertMsg');
+const standaloneAuthForm = document.getElementById('standaloneAuthForm');
+const pageDemoAdminBtn = document.getElementById('pageDemoAdminBtn');
+const pageDemoUserBtn = document.getElementById('pageDemoUserBtn');
+let isPageRegisterMode = false;
+
+function setPageAuthTab(registerMode) {
+  isPageRegisterMode = registerMode;
+  if (registerMode) {
+    if (pageTabRegister) pageTabRegister.classList.add('active');
+    if (pageTabSignIn) pageTabSignIn.classList.remove('active');
+    if (pageNameGroup) pageNameGroup.classList.remove('hide');
+    if (pageSubmitAuthBtnText) pageSubmitAuthBtnText.textContent = 'Register Account';
+  } else {
+    if (pageTabSignIn) pageTabSignIn.classList.add('active');
+    if (pageTabRegister) pageTabRegister.classList.remove('active');
+    if (pageNameGroup) pageNameGroup.classList.add('hide');
+    if (pageSubmitAuthBtnText) pageSubmitAuthBtnText.textContent = 'Sign In & Access SatyaLens';
+  }
+}
+
+if (pageTabSignIn) pageTabSignIn.addEventListener('click', () => setPageAuthTab(false));
+if (pageTabRegister) pageTabRegister.addEventListener('click', () => setPageAuthTab(true));
+
+if (pageDemoAdminBtn) {
+  pageDemoAdminBtn.addEventListener('click', () => {
+    setPageAuthTab(false);
+    const email = document.getElementById('pageAuthEmail');
+    const pass = document.getElementById('pageAuthPassword');
+    if (email) email.value = 'admin@satyalens.gov.np';
+    if (pass) pass.value = 'SatyaAdmin@2026';
+  });
+}
+
+if (pageDemoUserBtn) {
+  pageDemoUserBtn.addEventListener('click', () => {
+    setPageAuthTab(false);
+    const email = document.getElementById('pageAuthEmail');
+    const pass = document.getElementById('pageAuthPassword');
+    if (email) email.value = 'satya@example.com';
+    if (pass) pass.value = 'Satya@123';
+  });
+}
+
+if (standaloneAuthForm) {
+  standaloneAuthForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nameVal = document.getElementById('pageAuthName')?.value || '';
+    const emailVal = document.getElementById('pageAuthEmail')?.value || '';
+    const passVal = document.getElementById('pageAuthPassword')?.value || '';
+
+    if (pageAuthAlertMsg) pageAuthAlertMsg.classList.add('hide');
+
+    const endpoint = isPageRegisterMode ? '/api/register' : '/api/login';
+    const payload = isPageRegisterMode
+      ? { name: nameVal, email: emailVal, password: passVal }
+      : { email: emailVal, password: passVal };
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        if (pageAuthAlertMsg) {
+          pageAuthAlertMsg.textContent = data.error || 'Authentication failed';
+          pageAuthAlertMsg.className = 'auth-alert-msg alert-error';
+          pageAuthAlertMsg.classList.remove('hide');
+        }
+        return;
+      }
+
+      if (isPageRegisterMode) {
+        if (pageAuthAlertMsg) {
+          pageAuthAlertMsg.textContent = 'Account registered! An administrator must verify your account before you can run analysis. Please Sign In.';
+          pageAuthAlertMsg.className = 'auth-alert-msg alert-success';
+          pageAuthAlertMsg.classList.remove('hide');
+        }
+        setPageAuthTab(false);
+        return;
+      }
+
+      currentUserState = data.user;
+      updateUserUI(data.user);
+      showAppPanel();
+
+      if (data.pending_verification) {
+        alert('Welcome! Your account is registered, but pending administrator verification. An admin must verify your account before you can run AI analysis.');
+      }
+    } catch (err) {
+      if (pageAuthAlertMsg) {
+        pageAuthAlertMsg.textContent = 'Server connection error. Please try again.';
+        pageAuthAlertMsg.className = 'auth-alert-msg alert-error';
+        pageAuthAlertMsg.classList.remove('hide');
+      }
+    }
+  });
 }
 
 // --- Auth Modal & Tab Handlers ---
@@ -215,6 +324,7 @@ if (authForm) {
       closeAuthModal();
       currentUserState = data.user;
       updateUserUI(data.user);
+      showAppPanel();
 
       if (data.pending_verification) {
         alert('Welcome! Your account is registered, but pending administrator verification. An admin must verify your account before you can run AI analysis.');
@@ -236,6 +346,7 @@ if (logoutBtn) {
     } catch (e) {}
     currentUserState = null;
     updateUserUI(null);
+    showAuthPanel();
     alert('Logged out successfully.');
   });
 }
