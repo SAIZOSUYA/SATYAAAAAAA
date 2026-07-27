@@ -1447,7 +1447,11 @@ function addOsintTraceEntry(target, category, verdict, json, rawText) {
     : (target.includes('youtu') ? 'YouTube • Facebook Viral Groups • TikTok Clips • Twitter/X' : (target.includes('sora') ? 'Sora AI Gallery • TikTok (@synthetic_voice_lab) • Instagram Reels • Reddit' : 'Telegram Channels • WhatsApp Audio Broadcasts • Facebook Pages • Online News Portals'));
 
   const propTimeline = (json && json.source_provenance && json.source_provenance.propagation_timeline && Array.isArray(json.source_provenance.propagation_timeline))
-    ? json.source_provenance.propagation_timeline.map(t => `${t.date} (${t.source}: ${t.event})`).join(' ➔ ')
+    ? json.source_provenance.propagation_timeline.map(t => {
+        if (typeof t === 'string') return t;
+        if (t && typeof t === 'object') return `${t.date || 'N/A'} (${t.source || 'Media Source'}: ${t.event || 'Share Event'})`;
+        return String(t);
+      }).join(' ➔ ')
     : `2024-03-15 (Primary Source Upload) ➔ 2024-04-02 (Facebook & X/Twitter Viral Amplification) ➔ 2024-06-18 (Nepali News Network Archival) ➔ ${now.toISOString().split('T')[0]} (SatyaLens Forensic Audit)`;
 
   const newEntry = {
