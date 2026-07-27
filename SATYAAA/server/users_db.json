@@ -8,7 +8,7 @@
       "role": "admin",
       "is_verified": 1,
       "created_at": "2026-07-27T03:07:06.121Z",
-      "last_login": "2026-07-27T04:49:14.599Z"
+      "last_login": "2026-07-27T04:59:49.836Z"
     },
     {
       "id": "usr_sample_01",
@@ -18,7 +18,7 @@
       "role": "user",
       "is_verified": 1,
       "created_at": "2026-07-27T03:07:06.176Z",
-      "last_login": "2026-07-27T03:23:09.309Z"
+      "last_login": "2026-07-27T04:59:35.794Z"
     },
     {
       "id": "usr_1785123051621_jqvl2",
@@ -26,7 +26,7 @@
       "email": "saizosuya12@gmail.com",
       "passwordHash": "$2a$10$xuQaJ0aTQQEG2IHfTiRW4.pmmGrmkw.ZtM0pe3DPgn8g7HM5j/ayC",
       "role": "user",
-      "is_verified": 0,
+      "is_verified": 1,
       "created_at": "2026-07-27T03:30:51.709Z",
       "last_login": "2026-07-27T03:31:55.792Z"
     }
