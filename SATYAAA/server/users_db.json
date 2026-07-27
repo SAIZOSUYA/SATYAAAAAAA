@@ -8,7 +8,7 @@
       "role": "admin",
       "is_verified": 1,
       "created_at": "2026-07-27T03:07:06.121Z",
-      "last_login": "2026-07-27T03:25:44.703Z"
+      "last_login": "2026-07-27T03:32:32.100Z"
     },
     {
       "id": "usr_sample_01",
@@ -19,6 +19,16 @@
       "is_verified": 1,
       "created_at": "2026-07-27T03:07:06.176Z",
       "last_login": "2026-07-27T03:23:09.309Z"
+    },
+    {
+      "id": "usr_1785123051621_jqvl2",
+      "name": "SAIZO",
+      "email": "saizosuya12@gmail.com",
+      "passwordHash": "$2a$10$xuQaJ0aTQQEG2IHfTiRW4.pmmGrmkw.ZtM0pe3DPgn8g7HM5j/ayC",
+      "role": "user",
+      "is_verified": 0,
+      "created_at": "2026-07-27T03:30:51.709Z",
+      "last_login": "2026-07-27T03:31:55.792Z"
     }
   ]
 }
