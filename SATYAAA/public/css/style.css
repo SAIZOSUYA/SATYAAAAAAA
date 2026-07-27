@@ -2463,3 +2463,193 @@ body.light-mode .ai-floating-bar {
 body.light-mode .ai-alert-text span {
   color: #334155 !important;
 }
+
+/* --- OSINT & Digital Forensics Traced Artifacts Side Box Styles --- */
+.osint-side-box {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.osint-count-tag {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.osint-framework-subtitle {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: -6px;
+  margin-bottom: 14px;
+  line-height: 1.4;
+  border-bottom: 1px dashed rgba(148, 163, 184, 0.2);
+  padding-bottom: 8px;
+}
+
+.osint-search-wrapper {
+  margin-bottom: 14px;
+}
+
+.osint-search-wrapper input {
+  width: 100%;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #f1f5f9;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  transition: border-color 0.2s;
+}
+
+.osint-search-wrapper input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.osint-traced-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.osint-traced-list::-webkit-scrollbar {
+  width: 6px;
+}
+.osint-traced-list::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+}
+
+.osint-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 30px 14px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.osint-card-item {
+  background: rgba(30, 41, 59, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 10px;
+  padding: 14px;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.osint-card-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.osint-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 10px;
+}
+
+.osint-card-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #f8fafc;
+  word-break: break-all;
+}
+
+.osint-ipe-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.ipe-step-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  margin-top: 8px;
+}
+
+.ipe-step-row {
+  background: rgba(15, 23, 42, 0.5);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
+}
+
+.ipe-step-label {
+  font-weight: 800;
+  color: #93c5fd;
+  margin-right: 6px;
+  font-size: 0.75rem;
+}
+
+.osint-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+/* Light Mode Overrides for OSINT Side Box */
+body.light-mode .osint-side-box {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-mode .osint-count-tag {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #bfdbfe !important;
+}
+
+body.light-mode .osint-framework-subtitle {
+  color: #475569 !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+body.light-mode .osint-search-wrapper input {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+body.light-mode .osint-empty-state {
+  color: #64748b !important;
+}
+
+body.light-mode .osint-card-item {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+body.light-mode .osint-card-title {
+  color: #0f172a !important;
+}
+
+body.light-mode .ipe-step-row {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border-left-color: #2563eb !important;
+}
+
+body.light-mode .ipe-step-label {
+  color: #1d4ed8 !important;
+}
