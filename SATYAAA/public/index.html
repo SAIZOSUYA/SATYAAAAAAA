@@ -640,8 +640,12 @@
         </div>
       </div>
 
-      <div class="modal-footer">
+      <div class="modal-footer" style="flex-wrap: wrap; gap: 10px;">
         <button type="button" class="ghost" id="closeAdminModalFooterBtn">Close Panel</button>
+        <button type="button" class="ghost" id="exportDriveBtn" style="border-color: rgba(59, 130, 246, 0.4); color: #60a5fa; background: rgba(59, 130, 246, 0.12);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><polyline points="12 12 12 17 15 14"/><polyline points="12 12 9 14 12 17"/></svg>
+          <span>☁️ Export DB for Google Drive</span>
+        </button>
         <button type="button" class="primary-btn" id="refreshAdminUsersBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
           <span>Refresh Database</span>

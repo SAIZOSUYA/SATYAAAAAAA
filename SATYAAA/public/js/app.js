@@ -373,6 +373,32 @@ if (closeAdminUsersBtn) closeAdminUsersBtn.addEventListener('click', closeAdminU
 if (closeAdminModalFooterBtn) closeAdminModalFooterBtn.addEventListener('click', closeAdminUsersModal);
 if (refreshAdminUsersBtn) refreshAdminUsersBtn.addEventListener('click', fetchAdminUsers);
 
+const exportDriveBtn = document.getElementById('exportDriveBtn');
+if (exportDriveBtn) {
+  exportDriveBtn.addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/admin/export-database');
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Export failed');
+
+      // Trigger download of JSON database backup file
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data.data, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `SatyaLens_User_Database_Export_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      // Open target Google Drive folder URL in a new tab
+      const driveUrl = data.googleDriveFolderUrl || 'https://drive.google.com/drive/folders/1hCS6JwTl6mHt_5Y0J4tcfFlPOP46M6qq?usp=sharing';
+      window.open(driveUrl, '_blank', 'noopener');
+    } catch (err) {
+      alert(`Export Error: ${err.message}`);
+    }
+  });
+}
+
 async function fetchAdminUsers() {
   if (!adminUsersTableBody) return;
   adminUsersTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted);">Loading database user records...</td></tr>';

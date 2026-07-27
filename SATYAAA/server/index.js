@@ -9,6 +9,7 @@ require('dotenv').config();
 const datasetLoader = require('./datasetLoader');
 const fastAiDetector = require('./fastAiDetector');
 const db = require('./database');
+const driveExporter = require('./exportDatabaseToDrive');
 
 const multer = require('multer');
 const upload = multer({
@@ -187,6 +188,31 @@ app.post('/api/admin/delete-user', requireAdmin, (req, res) => {
     return res.json({ success: true });
   } catch (err) {
     return res.status(400).json({ error: err.message });
+  }
+});
+
+// Google Drive Database & Dataset Export Endpoints
+app.get('/api/admin/export-database', requireAdmin, (req, res) => {
+  try {
+    const { exportPayload, jsonFilePath } = driveExporter.exportUserDatabaseJson();
+    return res.json({
+      success: true,
+      googleDriveFolderUrl: driveExporter.GOOGLE_DRIVE_FOLDER_URL,
+      googleDriveFolderId: driveExporter.GOOGLE_DRIVE_FOLDER_ID,
+      exportFile: jsonFilePath,
+      data: exportPayload
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/admin/download-database-csv', requireAdmin, (req, res) => {
+  try {
+    const { csvFilePath } = driveExporter.exportUserDatabaseCsv();
+    return res.download(csvFilePath, 'SatyaLens_User_Database_Export.csv');
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 });
 
