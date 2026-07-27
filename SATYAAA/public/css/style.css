@@ -237,6 +237,25 @@ body.light-mode .sample-btn {
   background: rgba(225, 29, 72, 0.08);
 }
 
+/* Light Mode Overrides for Quick Test Sample Chips */
+body.light-mode .sample-chip {
+  background: rgba(225, 29, 72, 0.09) !important;
+  border: 1px solid rgba(225, 29, 72, 0.35) !important;
+  color: #9f1239 !important;
+  font-weight: 700 !important;
+}
+
+body.light-mode .sample-chip:hover {
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.3) !important;
+}
+
+body.light-mode .sample-chips-label {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+
 body.light-mode .file-upload-label {
   background: rgba(241, 245, 249, 0.9);
   color: #0f172a !important;
@@ -378,7 +397,8 @@ body.light-mode input[type="url"] {
 }
 
 body.light-mode input::placeholder {
-  color: #94a3b8;
+  color: #64748b !important;
+  opacity: 1 !important;
 }
 
 body.light-mode .theme-toggle-btn {
